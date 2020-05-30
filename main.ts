@@ -2,7 +2,7 @@
 type State = string;
 
 function estimate(state: State) {
-  return (
+  return 6-(
     parseInt(state[2]) +
     parseInt(state[5]) +
     parseInt(state[6]) +
@@ -54,107 +54,155 @@ function draw(state: State) {
   return pattern;
 }
 
-
 function insertSorted<T>(arr: T[], newValue: T, weight: (T) => number) {
-    let minIndexWhichIsBigger = 0;
+  let targetIndex = 0;
 
-    const newValueWeight = weight(newValue);
-    while (minIndexWhichIsBigger < arr.length) {
-        if (newValueWeight < weight(arr[minIndexWhichIsBigger])) {
-            break;
-        }
-        minIndexWhichIsBigger++;
+  const newValueWeight = weight(newValue);
+  while (targetIndex < arr.length) {
+    if (newValueWeight < weight(arr[targetIndex])) {
+      break;
     }
-    arr.splice(minIndexWhichIsBigger, 0, newValue)
+    targetIndex++;
+  }
+  arr.splice(targetIndex, 0, newValue);
+  return targetIndex;
 }
 
-
 function test() {
-    const state = "101010101010";
-    if (estimate(state) !== 4) {
+  const state = "101010101010";
+  if (estimate(state) !== 2) {    
+    throw new Error("Not expected");
+  }
+  for (const i of [0, 1, 2] as const) {
+    if (rotate(rotate(state, i, true), i, false) !== state) {
       throw new Error("Not expected");
     }
-    for (const i of [0, 1, 2] as const) {
-      if (rotate(rotate(state, i, true), i, false) !== state) {
-        throw new Error("Not expected");
-      }
-    }
-
-    
-    const assert = (x: number[], y:number[]) => {
-        if (x.join('-') != y.join(' ')) {
-            throw new Error(`Assertion error: ${x.join('-')} ${y.join('-')}`)
-        }
-    }
-
-    const assertInsertSorted = (target: number[], value: number, expected: number[]) =>{
-        const copy = [...target];
-        insertSorted(copy, value, x => x);
-        if (copy.join('-') != expected.join('-')) {
-            throw new Error(`Assertion error: ${copy.join('-')} ${expected.join('-')}`)
-        }
-    }
-
-    assertInsertSorted([], 2, [2]);
-    assertInsertSorted([5], 0, [0,5]);
-    assertInsertSorted([1], 5, [1,5]);    
-    assertInsertSorted([3,6], 1, [1,3,6]);
-    assertInsertSorted([3,6], 3, [3,3,6]);
-    assertInsertSorted([3,6], 5, [3,5,6]);
-    assertInsertSorted([3,6], 9, [3,6,9]);
-    
-    
   }
 
-function solve(state) {
+  const assert = (x: number[], y: number[]) => {
+    if (x.join("-") != y.join(" ")) {
+      throw new Error(`Assertion error: ${x.join("-")} ${y.join("-")}`);
+    }
+  };
+
+  const assertInsertSorted = (
+    target: number[],
+    value: number,
+    expected: number[]
+  ) => {
+    const copy = [...target];
+    insertSorted(copy, value, (x) => x);
+    if (copy.join("-") != expected.join("-")) {
+      throw new Error(
+        `Assertion error: ${copy.join("-")} ${expected.join("-")}`
+      );
+    }
+  };
+
+  assertInsertSorted([], 2, [2]);
+  assertInsertSorted([5], 0, [0, 5]);
+  assertInsertSorted([1], 5, [1, 5]);
+  assertInsertSorted([3, 6], 1, [1, 3, 6]);
+  assertInsertSorted([3, 6], 3, [3, 3, 6]);
+  assertInsertSorted([3, 6], 5, [3, 5, 6]);
+  assertInsertSorted([3, 6], 9, [3, 6, 9]);
+}
+
+function solve(initialState) {
   const finalState = "001001101110";
 
-  console.info(`Solving state` + draw(state));
-  
+  console.info(`Solving state ${initialState}` + draw(initialState));
+
   const closed = new Set<State>();
+
   const opened: {
-      state: State,
-      estimateWeight: number,
-      knownPathWeight: number
-  }[] = [{
-      state: state,
-      estimateWeight: estimate(state),
-      knownPathWeight: 0
-  }];
+    state: State;
+    estimateWeight: number;
+    knownPathWeight: number;
+  }[] = [
+    {
+      state: initialState,
+      estimateWeight: estimate(initialState),
+      knownPathWeight: 0,
+    },
+  ];
+
+  const bestFrom = new Map<State, State>();
+
   while (opened.length > 0) {
-        const current = opened.shift();
-        console.info(`Picking up state e=${current.estimateWeight} p=${current.knownPathWeight} f=${
-            current.estimateWeight + current.knownPathWeight
-        }`);
-        if (current.state === finalState) {
-            console.info(`Found a final state!`)
-        };
+    const current = opened.reduce((acc, current) =>
+      acc.estimateWeight + acc.knownPathWeight <
+      current.estimateWeight + current.knownPathWeight
+        ? acc
+        : current
+    );
+   
+    opened.splice(opened.findIndex(x => x.state ===current.state));
 
-        closed.add(current.state);
+    console.info(
+      `Picking up opened state ${current.state} e=${current.estimateWeight} p=${
+        current.knownPathWeight
+      } f=${current.estimateWeight + current.knownPathWeight}` +draw(current.state)
+    );
+    if (current.state === finalState) {
+      console.info(`Found a final state!`);
+      return;
+    }
 
-        const neighbours = [
-            rotate(current.state, 0, true),
-            rotate(current.state, 0, false),
-            rotate(current.state, 1, true),
-            rotate(current.state, 1, false),
-            rotate(current.state, 2, true),
-            rotate(current.state, 2, false),
-        ];
-        for (const neighbour of neighbours) {
-            if(closed.has(neighbour)) {
-                continue
-            };
-            const STEP_PATH_SIZE = 1;
-            const node = {
-                state: neighbour,
-                estimateWeight: estimate(neighbour),
-                knownPathWeight: current.knownPathWeight + STEP_PATH_SIZE
-            };
-            
+    closed.add(current.state);
+
+    const neighbours = [
+      rotate(current.state, 0, true),
+      rotate(current.state, 0, false),
+      rotate(current.state, 1, true),
+      rotate(current.state, 1, false),
+      rotate(current.state, 2, true),
+      rotate(current.state, 2, false),
+    ];
+    for (const neighbour of neighbours) {
+      if (closed.has(neighbour)) {
+        console.info(`  Neighbour ${neighbour} already closed`);
+        continue;
+      }
+      const STEP_PATH_SIZE = 1;
+      const newNode = {
+        state: neighbour,
+        estimateWeight: estimate(neighbour),
+        knownPathWeight: current.knownPathWeight + STEP_PATH_SIZE,
+      };
+      const currentOpenedNode = opened.find((x) => x.state === neighbour);
+
+      if (!currentOpenedNode) {
+        console.info(`  Neighbor ${neighbour} is added to opened e=${newNode.estimateWeight} p=${
+            newNode.knownPathWeight
+          } f=${newNode.estimateWeight + newNode.knownPathWeight}`);
+        opened.push(newNode);
+        bestFrom.set(neighbour, current.state);
+      } else {
+        if (
+          currentOpenedNode.estimateWeight + currentOpenedNode.knownPathWeight >
+          newNode.estimateWeight + newNode.knownPathWeight
+        ) {
+            console.info(`  Neighbor ${neighbour} was is opened, but replaced with e=${newNode.estimateWeight} p=${
+                newNode.knownPathWeight
+              } f=${newNode.estimateWeight + newNode.knownPathWeight} `+
+              `old_e=${currentOpenedNode.estimateWeight} old_p=${
+                currentOpenedNode.knownPathWeight
+              } old_f=${currentOpenedNode.estimateWeight + currentOpenedNode.knownPathWeight}`);
+    
+          opened.splice(opened.indexOf(currentOpenedNode));
+          opened.push(newNode);
+          bestFrom.set(neighbour, current.state);
+        } else {
+          console.info(`  Neighbor ${neighbour} is already opened e=${newNode.estimateWeight} p=${
+            newNode.knownPathWeight
+          } f=${newNode.estimateWeight + newNode.knownPathWeight}, no update`);
         }
+      }
+    }
   }
 
-  console.info("LOL, no solution")
+  console.info("LOL, no solution");
 }
 
 test();
