@@ -1,71 +1,120 @@
-
-type Ball = 1 | 0
 /** 12 items */
-type State = Ball[];
+type State = string;
 
 function estimate(state: State) {
-    return state[2] + state[5] + state[6] + state[8] + state[9] + state[10]
+  return (
+    parseInt(state[2]) +
+    parseInt(state[5]) +
+    parseInt(state[6]) +
+    parseInt(state[8]) +
+    parseInt(state[9]) +
+    parseInt(state[10])
+  );
 }
 
 function rotate(state: State, circleId: 0 | 1 | 2, direction: boolean) {
-    const circles = [
-        [1,2,6,9,8,4],
-        [2,3,7,10,9,5],
-        [5,6,10,0,11,8]
-    ];
-    const circle = circles[circleId];
+  const circles = [
+    [1, 2, 6, 9, 8, 4],
+    [2, 3, 7, 10, 9, 5],
+    [5, 6, 10, 0, 11, 8],
+  ];
+  const circle = circles[circleId];
 
-    const newState = [...state];
-    if (direction) {        
-        const tmp = newState[circle[0]];
-        for (let i = 0; i < 5; i++) {
-            newState[circle[i]] = newState[circle[i+1]];            
-        }
-        newState[circle[5]] = tmp;
-    } else {
-        const tmp = newState[circle[5]];
-        for (let i = 5; i > 0; i--) {
-            newState[circle[i]] = newState[circle[i-1]];            
-        }
-        newState[circle[0]] = tmp;
+  const newState = state.split("");
+  if (direction) {
+    const tmp = newState[circle[0]];
+    for (let i = 0; i < 5; i++) {
+      newState[circle[i]] = newState[circle[i + 1]];
     }
-    return newState;
+    newState[circle[5]] = tmp;
+  } else {
+    const tmp = newState[circle[5]];
+    for (let i = 5; i > 0; i--) {
+      newState[circle[i]] = newState[circle[i - 1]];
+    }
+    newState[circle[0]] = tmp;
+  }
+  return newState.join("");
 }
 
 function draw(state: State) {
-    let pattern = ""+                                      
-"      1  -  2  -  3     \n" +
-"    /     /   \\    \\  \n" +
-"   4     5  -  6    7   \n" +
-"    \\   / \\   / \\  / \n" +
-"      8  -  9  -  A     \n" +
-"       \\         /     \n" +
-"         B  -  0        \n";
-   const indexes = '0123456789AB';
-   for (let i = 0; i < indexes.length; i++) {
-       pattern = pattern.replace(indexes[i], state[i] === 0 ? "*" : "@")
-   };
-   console.info(pattern);
+  let pattern =
+    "\n" +
+    "      1  -  2  -  3     \n" +
+    "    /     /   \\    \\  \n" +
+    "   4     5  -  6    7   \n" +
+    "    \\   / \\   / \\  / \n" +
+    "      8  -  9  -  A     \n" +
+    "       \\         /     \n" +
+    "         B  -  0        \n";
+  const indexes = "0123456789AB";
+  for (let i = 0; i < indexes.length; i++) {
+    pattern = pattern.replace(indexes[i], parseInt(state[i]) === 0 ? "*" : "@");
+  }
+  return pattern;
 }
+
+
+function insertSorted<T>(arr: T[], newValue: T, weight: (T) => number) {
+    let minIndexWhichIsBigger = 0;
+
+    const newValueWeight = weight(newValue);
+    while (minIndexWhichIsBigger < arr.length) {
+        if (newValueWeight < weight(arr[minIndexWhichIsBigger])) {
+            break;
+        }
+        minIndexWhichIsBigger++;
+    }
+    arr.splice(minIndexWhichIsBigger, 0, newValue)
+}
+
 
 function test() {
-    const state: State = '101010101010'.split('').map(x => parseInt(x) as 0| 1);
+    const state = "101010101010";
     if (estimate(state) !== 4) {
-        throw new Error("Not expected")
+      throw new Error("Not expected");
     }
-    for (const i of [0,1,2] as const) {
-        if (rotate(rotate(state, i, true), i, false).join('-') != state.join('-')) {
-            throw new Error("Not expected")
+    for (const i of [0, 1, 2] as const) {
+      if (rotate(rotate(state, i, true), i, false) !== state) {
+        throw new Error("Not expected");
+      }
+    }
+
+    
+    const assert = (x: number[], y:number[]) => {
+        if (x.join('-') != y.join(' ')) {
+            throw new Error(`Assertion error: ${x.join('-')} ${y.join('-')}`)
         }
     }
+
+    const assertInsertSorted = (target: number[], value: number, expected: number[]) =>{
+        const copy = [...target];
+        insertSorted(copy, value, x => x);
+        if (copy.join('-') != expected.join('-')) {
+            throw new Error(`Assertion error: ${copy.join('-')} ${expected.join('-')}`)
+        }
+    }
+
+    assertInsertSorted([], 2, [2]);
+    assertInsertSorted([5], 0, [0,5]);
+    assertInsertSorted([1], 5, [1,5]);    
+    assertInsertSorted([3,6], 1, [1,3,6]);
+    assertInsertSorted([3,6], 3, [3,3,6]);
+    assertInsertSorted([3,6], 5, [3,5,6]);
+    assertInsertSorted([3,6], 9, [3,6,9]);
     
+    
+  }
 
-    console.info(`Initial state`)
-    draw(state);
-    //draw(rotate(state, 1, true))
+function solve(state) {
+  const finalState = "001001101110";
 
-
+  console.info(`Solving state` + draw(state));
+  
+  const closed = new Set<State>();
 }
 
-
 test();
+
+const DEMO_STATE = "101010101010";
+solve(DEMO_STATE);
