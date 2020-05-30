@@ -113,6 +113,8 @@ function solve(initialState) {
 
   console.info(`Solving state ${initialState}` + draw(initialState));
 
+  let iterationsCount = 0;
+
   const closed = new Set<State>();
 
   const opened: {
@@ -145,11 +147,19 @@ function solve(initialState) {
       } f=${current.estimateWeight + current.knownPathWeight}` +draw(current.state)
     );
     if (current.state === finalState) {
-      console.info(`Found a final state!`);
+      console.info(`Found a final state in ${iterationsCount} iterations!`);
+      console.info(`========================`);
+      let cursor = finalState;
+      while (cursor){
+        console.info(draw(cursor));
+        cursor = bestFrom.get(cursor);        
+      }   
       return;
     }
 
     closed.add(current.state);
+
+    iterationsCount++;
 
     const neighbours = [
       rotate(current.state, 0, true),
