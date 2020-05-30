@@ -112,6 +112,49 @@ function solve(state) {
   console.info(`Solving state` + draw(state));
   
   const closed = new Set<State>();
+  const opened: {
+      state: State,
+      estimateWeight: number,
+      knownPathWeight: number
+  }[] = [{
+      state: state,
+      estimateWeight: estimate(state),
+      knownPathWeight: 0
+  }];
+  while (opened.length > 0) {
+        const current = opened.shift();
+        console.info(`Picking up state e=${current.estimateWeight} p=${current.knownPathWeight} f=${
+            current.estimateWeight + current.knownPathWeight
+        }`);
+        if (current.state === finalState) {
+            console.info(`Found a final state!`)
+        };
+
+        closed.add(current.state);
+
+        const neighbours = [
+            rotate(current.state, 0, true),
+            rotate(current.state, 0, false),
+            rotate(current.state, 1, true),
+            rotate(current.state, 1, false),
+            rotate(current.state, 2, true),
+            rotate(current.state, 2, false),
+        ];
+        for (const neighbour of neighbours) {
+            if(closed.has(neighbour)) {
+                continue
+            };
+            const STEP_PATH_SIZE = 1;
+            const node = {
+                state: neighbour,
+                estimateWeight: estimate(neighbour),
+                knownPathWeight: current.knownPathWeight + STEP_PATH_SIZE
+            };
+            
+        }
+  }
+
+  console.info("LOL, no solution")
 }
 
 test();
