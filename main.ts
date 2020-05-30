@@ -46,7 +46,7 @@ function draw(state: State) {
     "    \\   / \\   / \\  / \n" +
     "      8  -  9  -  A     \n" +
     "       \\         /     \n" +
-    "         B  -  0        \n";
+    "         B  -  0        ";
   const indexes = "0123456789AB";
   for (let i = 0; i < indexes.length; i++) {
     pattern = pattern.replace(indexes[i], parseInt(state[i]) === 0 ? "*" : "@");
@@ -142,9 +142,9 @@ function solve(initialState) {
     opened.splice(opened.findIndex(x => x.state ===current.state));
 
     console.info(
-      `Picking up opened state ${current.state} e=${current.estimateWeight} p=${
+      `Picking up opened state ${current.state} estimation=${current.estimateWeight} pathLen=${
         current.knownPathWeight
-      } f=${current.estimateWeight + current.knownPathWeight}` +draw(current.state)
+      } priority=f=${current.estimateWeight + current.knownPathWeight}` +draw(current.state)
     );
     if (current.state === finalState) {
       console.info(`Found a final state in ${iterationsCount} iterations!`);
@@ -210,6 +210,8 @@ function solve(initialState) {
         }
       }
     }
+
+    console.info("");
   }
 
   console.info("LOL, no solution");
