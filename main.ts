@@ -167,11 +167,14 @@ function solve(initialState) {
     if (current.state === finalState) {
       console.info(`Found a final state in ${iterationsCount} iterations!`);
       console.info(`========================`);
+      let solutionJumpsCount = 0;
       let cursor = finalState;
       while (cursor){
+        solutionJumpsCount++;
         console.info(draw(cursor));
         cursor = bestFrom.get(cursor);        
       }   
+      console.info(`Need ${solutionJumpsCount} moves`)
       return;
     }
 
