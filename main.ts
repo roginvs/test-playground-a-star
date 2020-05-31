@@ -1,20 +1,30 @@
-/** 
+/**
  * string with 12 characters 0 or 1
-*/
+ */
 type State = string;
+
+function log(s: string) {
+  const e = document.getElementById("logs");
+  if (e) {
+    const line = document.createElement("div");
+    line.innerHTML = s;
+    e.appendChild(line);
+  }
+}
 
 /**
  * Returns estimated distance, from 0 to 6
  * (How many dots are left)
  */
 function estimate(state: State) {
-  return 6-(
-    parseInt(state[2]) +
-    parseInt(state[5]) +
-    parseInt(state[6]) +
-    parseInt(state[8]) +
-    parseInt(state[9]) +
-    parseInt(state[10])
+  return (
+    6 -
+    (parseInt(state[2]) +
+      parseInt(state[5]) +
+      parseInt(state[6]) +
+      parseInt(state[8]) +
+      parseInt(state[9]) +
+      parseInt(state[10]))
   );
 }
 
@@ -60,13 +70,12 @@ function draw(state: State) {
   return pattern;
 }
 
-
 /**
  * Some health-checks
  */
 function test() {
   const state = "101010101010";
-  if (estimate(state) !== 2) {    
+  if (estimate(state) !== 2) {
     throw new Error("Not expected");
   }
   for (const i of [0, 1, 2] as const) {
@@ -77,9 +86,18 @@ function test() {
 }
 
 function solve(initialState) {
+  if (initialState.length !== 12) {
+    log("Wrong input length!");
+    return;
+  }
+  if (initialState.split("").filter((x) => x !== "0" && x !== "1").length > 0) {
+    log("Wrong input symbols, only 0 or 1 are allowed!");
+    return;
+  }
+
   const finalState = "001001101110";
 
-  console.info(`Solving state ${initialState}` + draw(initialState));
+  log(`Solving state ${initialState}` + draw(initialState));
 
   let iterationsCount = 0;
 
@@ -110,31 +128,36 @@ function solve(initialState) {
       current.estimateWeight + current.knownPathWeight
         ? acc
         : current
-    );   
-    opened.splice(opened.findIndex(x => x.state ===current.state), 1);
+    );
+    opened.splice(
+      opened.findIndex((x) => x.state === current.state),
+      1
+    );
 
-    console.info(
-      `Picking up opened state ${current.state} estimation=${current.estimateWeight} pathLen=${
-        current.knownPathWeight
-      } priority=f=${current.estimateWeight + current.knownPathWeight}` +draw(current.state)
+    log(
+      `Picking up opened state ${current.state} estimation=${
+        current.estimateWeight
+      } pathLen=${current.knownPathWeight} priority=f=${
+        current.estimateWeight + current.knownPathWeight
+      }` + draw(current.state)
     );
     if (current.state === finalState) {
-      console.info(`Found a final state in ${iterationsCount} iterations!`);
-      console.info(`========================`);
+      log(`Found a final state in ${iterationsCount} iterations!`);
+      log(`========================`);
       let solutionJumpsCount = 0;
       let cursor = finalState;
-      while (cursor){
+      while (cursor) {
         solutionJumpsCount++;
-        //console.info(draw(cursor));
-        console.info(cursor);
-        cursor = bestFrom.get(cursor);        
-      }   
-      console.info(`Need ${solutionJumpsCount} moves`)
+        //log(draw(cursor));
+        log(cursor);
+        cursor = bestFrom.get(cursor);
+      }
+      log(`Need ${solutionJumpsCount} moves`);
       return;
     }
 
     // We can add into `closed` in the end of the main loop
-    // But what if we have edge which returns to same state? Then it will be an infinite loop 
+    // But what if we have edge which returns to same state? Then it will be an infinite loop
     closed.add(current.state);
 
     iterationsCount++;
@@ -149,7 +172,7 @@ function solve(initialState) {
     ];
     for (const neighbor of neighbors) {
       if (closed.has(neighbor)) {
-        console.info(`  Neighbor ${neighbor} already closed`);
+        log(`  Neighbor ${neighbor} already closed`);
         continue;
       }
       const STEP_PATH_SIZE = 1;
@@ -158,12 +181,18 @@ function solve(initialState) {
         estimateWeight: estimate(neighbor),
         knownPathWeight: current.knownPathWeight + STEP_PATH_SIZE,
       };
-      const currentOpenedNode = opened.find(openedNode => openedNode.state === neighbor);
+      const currentOpenedNode = opened.find(
+        (openedNode) => openedNode.state === neighbor
+      );
 
       if (!currentOpenedNode) {
-        console.info(`  Neighbor ${neighbor} is added to opened e=${newNode.estimateWeight} p=${
-            newNode.knownPathWeight
-          } f=${newNode.estimateWeight + newNode.knownPathWeight}`);
+        log(
+          `  Neighbor ${neighbor} is added to opened e=${
+            newNode.estimateWeight
+          } p=${newNode.knownPathWeight} f=${
+            newNode.estimateWeight + newNode.knownPathWeight
+          }`
+        );
         opened.push(newNode);
         bestFrom.set(neighbor, current.state);
       } else {
@@ -171,38 +200,48 @@ function solve(initialState) {
           currentOpenedNode.estimateWeight + currentOpenedNode.knownPathWeight >
           newNode.estimateWeight + newNode.knownPathWeight
         ) {
-            console.info(`  Neighbor ${neighbor} was is opened, but replaced with e=${newNode.estimateWeight} p=${
-                newNode.knownPathWeight
-              } f=${newNode.estimateWeight + newNode.knownPathWeight} `+
+          log(
+            `  Neighbor ${neighbor} was is opened, but replaced with e=${
+              newNode.estimateWeight
+            } p=${newNode.knownPathWeight} f=${
+              newNode.estimateWeight + newNode.knownPathWeight
+            } ` +
               `old_e=${currentOpenedNode.estimateWeight} old_p=${
                 currentOpenedNode.knownPathWeight
-              } old_f=${currentOpenedNode.estimateWeight + currentOpenedNode.knownPathWeight}`);
-    
+              } old_f=${
+                currentOpenedNode.estimateWeight +
+                currentOpenedNode.knownPathWeight
+              }`
+          );
+
           opened.splice(opened.indexOf(currentOpenedNode), 1);
           opened.push(newNode);
           bestFrom.set(neighbor, current.state);
         } else {
-          console.info(`  Neighbor ${neighbor} is already opened e=${newNode.estimateWeight} p=${
-            newNode.knownPathWeight
-          } f=${newNode.estimateWeight + newNode.knownPathWeight}, no update`);
+          log(
+            `  Neighbor ${neighbor} is already opened e=${
+              newNode.estimateWeight
+            } p=${newNode.knownPathWeight} f=${
+              newNode.estimateWeight + newNode.knownPathWeight
+            }, no update`
+          );
         }
       }
     }
 
-    console.info("");
+    log("");
   }
 
-  console.info("LOL, no solution");
+  log("LOL, no solution");
 }
-
 
 function bruteForceTotalSolution() {
   const seen = new Set<State>();
-  const initialState = "001001101110";  
+  const initialState = "001001101110";
 
-  function go(state:State){
-    if (seen.has(state)){
-      return
+  function go(state: State) {
+    if (seen.has(state)) {
+      return;
     }
     seen.add(state);
 
@@ -215,16 +254,25 @@ function bruteForceTotalSolution() {
       rotate(state, 2, false),
     ];
     for (const neighbour of neighbours) {
-      go(neighbour)
+      go(neighbour);
     }
   }
   go(initialState);
-  console.info(`Total states = ${seen.size}`)
+  log(`Total states = ${seen.size}`);
 }
 
 test();
 
 //bruteForceTotalSolution();
 
-const DEMO_STATE = "101010101010";
-solve(DEMO_STATE);
+//const DEMO_STATE = "101010101010";
+//solve(DEMO_STATE);
+setTimeout(() => {
+  document.getElementById("go_button")!.onclick = (e) => {
+    e.preventDefault();
+    document.getElementById("inputs")!.style.display = "none";
+    const state: State = (document.getElementById("initial_state") as any)
+      .value;
+    solve(state);
+  };
+}, 1);
