@@ -275,4 +275,29 @@ setTimeout(() => {
       .value;
     solve(state);
   };
+
+  const updatePreview = () => {
+    const val = (document.getElementById("initial_state") as any).value;
+    const preview = document.getElementById("preview") as HTMLDivElement;
+
+    if (val.length !== 12) {
+      preview.innerHTML = `Неверная длинна, получено ${val.length} символов, ожидается 12`;
+      return;
+    }
+    if (val.split("").filter((x) => x !== "0" && x !=="1").length > 0) {
+      preview.innerHTML = `Неверные символы, только 0 и 1 допустимые`;
+      return;
+    }
+    if (
+      val.split("").filter((x) => x === "0").length !== 6 ||
+      val.split("").filter((x) => x === "1").length !== 6
+    ) {
+      preview.innerHTML = `Неверное количество символов, должно быть по 6 каждого`;
+      return;
+    }
+    preview.innerHTML = draw(val);
+  };
+  document.getElementById("initial_state")!.onchange = updatePreview;
+  document.getElementById("initial_state")!.onkeyup = updatePreview;
+  updatePreview();
 }, 1);
