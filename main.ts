@@ -142,14 +142,15 @@ function solve(initialState) {
       }` + draw(current.state)
     );
     if (current.state === finalState) {
+      log(" ")
       log(`Found a final state in ${iterationsCount} iterations!`);
-      log(`========================`);
+      log(" ")
+      log(`========== A solution: ============`);
       let solutionJumpsCount = 0;
       let cursor = finalState;
       while (cursor) {
         solutionJumpsCount++;
-        //log(draw(cursor));
-        log(cursor);
+        log(cursor + " " + draw(cursor));
         cursor = bestFrom.get(cursor);
       }
       log(`Need ${solutionJumpsCount} moves`);
