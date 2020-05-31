@@ -60,21 +60,6 @@ function draw(state: State) {
   return pattern;
 }
 
-/*
-function insertSorted<T>(arr: T[], newValue: T, weight: (T) => number) {
-  let targetIndex = 0;
-
-  const newValueWeight = weight(newValue);
-  while (targetIndex < arr.length) {
-    if (newValueWeight < weight(arr[targetIndex])) {
-      break;
-    }
-    targetIndex++;
-  }
-  arr.splice(targetIndex, 0, newValue);
-  return targetIndex;
-}
-*/
 
 /**
  * Some health-checks
@@ -89,37 +74,6 @@ function test() {
       throw new Error("Not expected");
     }
   }
-
-  /*
-  const assert = (x: number[], y: number[]) => {
-    if (x.join("-") != y.join(" ")) {
-      throw new Error(`Assertion error: ${x.join("-")} ${y.join("-")}`);
-    }
-  };
-
-  
-  const assertInsertSorted = (
-    target: number[],
-    value: number,
-    expected: number[]
-  ) => {
-    const copy = [...target];
-    insertSorted(copy, value, (x) => x);
-    if (copy.join("-") != expected.join("-")) {
-      throw new Error(
-        `Assertion error: ${copy.join("-")} ${expected.join("-")}`
-      );
-    }
-  };
-
-  assertInsertSorted([], 2, [2]);
-  assertInsertSorted([5], 0, [0, 5]);
-  assertInsertSorted([1], 5, [1, 5]);
-  assertInsertSorted([3, 6], 1, [1, 3, 6]);
-  assertInsertSorted([3, 6], 3, [3, 3, 6]);
-  assertInsertSorted([3, 6], 5, [3, 5, 6]);
-  assertInsertSorted([3, 6], 9, [3, 6, 9]);
-  */
 }
 
 function solve(initialState) {
