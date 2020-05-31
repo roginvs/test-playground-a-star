@@ -171,7 +171,8 @@ function solve(initialState) {
       let cursor = finalState;
       while (cursor){
         solutionJumpsCount++;
-        console.info(draw(cursor));
+        //console.info(draw(cursor));
+        console.info(cursor);
         cursor = bestFrom.get(cursor);        
       }   
       console.info(`Need ${solutionJumpsCount} moves`)
