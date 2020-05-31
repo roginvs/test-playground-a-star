@@ -157,7 +157,7 @@ function solve(initialState) {
         ? acc
         : current
     );   
-    opened.splice(opened.findIndex(x => x.state ===current.state));
+    opened.splice(opened.findIndex(x => x.state ===current.state), 1);
 
     console.info(
       `Picking up opened state ${current.state} estimation=${current.estimateWeight} pathLen=${
@@ -193,42 +193,42 @@ function solve(initialState) {
       rotate(current.state, 2, true),
       rotate(current.state, 2, false),
     ];
-    for (const neighbour of neighbors) {
-      if (closed.has(neighbour)) {
-        console.info(`  Neighbour ${neighbour} already closed`);
+    for (const neighbor of neighbors) {
+      if (closed.has(neighbor)) {
+        console.info(`  Neighbor ${neighbor} already closed`);
         continue;
       }
       const STEP_PATH_SIZE = 1;
       const newNode = {
-        state: neighbour,
-        estimateWeight: estimate(neighbour),
+        state: neighbor,
+        estimateWeight: estimate(neighbor),
         knownPathWeight: current.knownPathWeight + STEP_PATH_SIZE,
       };
-      const currentOpenedNode = opened.find((x) => x.state === neighbour);
+      const currentOpenedNode = opened.find(openedNode => openedNode.state === neighbor);
 
       if (!currentOpenedNode) {
-        console.info(`  Neighbor ${neighbour} is added to opened e=${newNode.estimateWeight} p=${
+        console.info(`  Neighbor ${neighbor} is added to opened e=${newNode.estimateWeight} p=${
             newNode.knownPathWeight
           } f=${newNode.estimateWeight + newNode.knownPathWeight}`);
         opened.push(newNode);
-        bestFrom.set(neighbour, current.state);
+        bestFrom.set(neighbor, current.state);
       } else {
         if (
           currentOpenedNode.estimateWeight + currentOpenedNode.knownPathWeight >
           newNode.estimateWeight + newNode.knownPathWeight
         ) {
-            console.info(`  Neighbor ${neighbour} was is opened, but replaced with e=${newNode.estimateWeight} p=${
+            console.info(`  Neighbor ${neighbor} was is opened, but replaced with e=${newNode.estimateWeight} p=${
                 newNode.knownPathWeight
               } f=${newNode.estimateWeight + newNode.knownPathWeight} `+
               `old_e=${currentOpenedNode.estimateWeight} old_p=${
                 currentOpenedNode.knownPathWeight
               } old_f=${currentOpenedNode.estimateWeight + currentOpenedNode.knownPathWeight}`);
     
-          opened.splice(opened.indexOf(currentOpenedNode));
+          opened.splice(opened.indexOf(currentOpenedNode), 1);
           opened.push(newNode);
-          bestFrom.set(neighbour, current.state);
+          bestFrom.set(neighbor, current.state);
         } else {
-          console.info(`  Neighbor ${neighbour} is already opened e=${newNode.estimateWeight} p=${
+          console.info(`  Neighbor ${neighbor} is already opened e=${newNode.estimateWeight} p=${
             newNode.knownPathWeight
           } f=${newNode.estimateWeight + newNode.knownPathWeight}, no update`);
         }
