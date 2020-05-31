@@ -148,10 +148,12 @@ function solve(initialState) {
       log(`========== A solution: ============`);
       let solutionJumpsCount = 0;
       let cursor = finalState;
-      while (cursor) {
-        solutionJumpsCount++;
+      while (cursor) {        
         log(cursor + " " + draw(cursor));
         cursor = bestFrom.get(cursor);
+        if (cursor) {
+          solutionJumpsCount++;
+        }
       }
       log(`Need ${solutionJumpsCount} moves`);
       return;
