@@ -1,6 +1,12 @@
-/** 12 items */
+/** 
+ * string with 12 characters 0 or 1
+*/
 type State = string;
 
+/**
+ * Returns estimated distance, from 0 to 6
+ * (How many dots are left)
+ */
 function estimate(state: State) {
   return 6-(
     parseInt(state[2]) +
@@ -54,6 +60,7 @@ function draw(state: State) {
   return pattern;
 }
 
+/*
 function insertSorted<T>(arr: T[], newValue: T, weight: (T) => number) {
   let targetIndex = 0;
 
@@ -67,7 +74,11 @@ function insertSorted<T>(arr: T[], newValue: T, weight: (T) => number) {
   arr.splice(targetIndex, 0, newValue);
   return targetIndex;
 }
+*/
 
+/**
+ * Some health-checks
+ */
 function test() {
   const state = "101010101010";
   if (estimate(state) !== 2) {    
@@ -79,12 +90,14 @@ function test() {
     }
   }
 
+  /*
   const assert = (x: number[], y: number[]) => {
     if (x.join("-") != y.join(" ")) {
       throw new Error(`Assertion error: ${x.join("-")} ${y.join("-")}`);
     }
   };
 
+  
   const assertInsertSorted = (
     target: number[],
     value: number,
@@ -106,6 +119,7 @@ function test() {
   assertInsertSorted([3, 6], 3, [3, 3, 6]);
   assertInsertSorted([3, 6], 5, [3, 5, 6]);
   assertInsertSorted([3, 6], 9, [3, 6, 9]);
+  */
 }
 
 function solve(initialState) {
@@ -115,8 +129,11 @@ function solve(initialState) {
 
   let iterationsCount = 0;
 
+  // State is added into `closed` when it have
+  // minimum `f` from current `opened`
   const closed = new Set<State>();
 
+  // Candidates for traversal
   const opened: {
     state: State;
     estimateWeight: number;
@@ -129,16 +146,17 @@ function solve(initialState) {
     },
   ];
 
+  // To construct return path
   const bestFrom = new Map<State, State>();
 
   while (opened.length > 0) {
+    // Get state with lowest f
     const current = opened.reduce((acc, current) =>
       acc.estimateWeight + acc.knownPathWeight <
       current.estimateWeight + current.knownPathWeight
         ? acc
         : current
-    );
-   
+    );   
     opened.splice(opened.findIndex(x => x.state ===current.state));
 
     console.info(
@@ -157,11 +175,13 @@ function solve(initialState) {
       return;
     }
 
+    // We can add into `closed` in the end of the main loop
+    // But what if we have edge which returns to same state? Then it will be an infinite loop 
     closed.add(current.state);
 
     iterationsCount++;
 
-    const neighbours = [
+    const neighbors = [
       rotate(current.state, 0, true),
       rotate(current.state, 0, false),
       rotate(current.state, 1, true),
@@ -169,7 +189,7 @@ function solve(initialState) {
       rotate(current.state, 2, true),
       rotate(current.state, 2, false),
     ];
-    for (const neighbour of neighbours) {
+    for (const neighbour of neighbors) {
       if (closed.has(neighbour)) {
         console.info(`  Neighbour ${neighbour} already closed`);
         continue;
@@ -217,7 +237,36 @@ function solve(initialState) {
   console.info("LOL, no solution");
 }
 
+
+function bruteForceTotalSolution() {
+  const seen = new Set<State>();
+  const initialState = "001001101110";  
+
+  function go(state:State){
+    if (seen.has(state)){
+      return
+    }
+    seen.add(state);
+
+    const neighbours = [
+      rotate(state, 0, true),
+      rotate(state, 0, false),
+      rotate(state, 1, true),
+      rotate(state, 1, false),
+      rotate(state, 2, true),
+      rotate(state, 2, false),
+    ];
+    for (const neighbour of neighbours) {
+      go(neighbour)
+    }
+  }
+  go(initialState);
+  console.info(`Total states = ${seen.size}`)
+}
+
 test();
+
+//bruteForceTotalSolution();
 
 const DEMO_STATE = "101010101010";
 solve(DEMO_STATE);
