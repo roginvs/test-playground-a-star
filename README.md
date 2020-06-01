@@ -41,13 +41,21 @@
 
 Для запуска нужен nodejs >= 10.
 
+### Веб вариант
 ```sh
 npm install
 npm run tsc
 npm run webserver
 ```
 
-После этого можно перейти на `http://loclhost:8080`
+После этого можно перейти на `http://localhost:8080`
+
+### Консольный вариант
+
+```
+npm install
+./node_modules/.bin/ts-node main.ts
+```
 
 ## Результаты
 

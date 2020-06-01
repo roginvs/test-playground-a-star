@@ -3,7 +3,12 @@
  */
 type State = string;
 
+const IS_NODE = typeof document === "undefined";
 function log(s: string) {
+  if (IS_NODE) {
+    console.info(s);
+    return;
+  }
   const e = document.getElementById("logs");
   if (e) {
     const line = document.createElement("div");
@@ -142,13 +147,13 @@ function solve(initialState) {
       }` + draw(current.state)
     );
     if (current.state === finalState) {
-      log(" ")
+      log(" ");
       log(`Found a final state in ${iterationsCount} iterations!`);
-      log(" ")
+      log(" ");
       log(`========== A solution: ============`);
       let solutionJumpsCount = 0;
       let cursor = finalState;
-      while (cursor) {        
+      while (cursor) {
         log(cursor + " " + draw(cursor));
         cursor = bestFrom.get(cursor);
         if (cursor) {
@@ -268,48 +273,55 @@ test();
 
 //bruteForceTotalSolution();
 
-//const DEMO_STATE = "101010101010";
-//solve(DEMO_STATE);
-setTimeout(() => {
-  document.getElementById("go_button")!.onclick = (e) => {
-    e.preventDefault();
-    document.getElementById("inputs")!.style.display = "none";
-    const state: State = (document.getElementById("initial_state") as any)
-      .value;
-    solve(state);
-  };
+if (IS_NODE) {
+  const DEMO_STATE = "101010101010";
+  solve(DEMO_STATE);
+} else {
+  setTimeout(() => {
+    document.getElementById("go_button")!.onclick = (e) => {
+      e.preventDefault();
+      document.getElementById("inputs")!.style.display = "none";
+      const state: State = (document.getElementById("initial_state") as any)
+        .value;
+      solve(state);
+    };
 
-  const updatePreview = () => {
-    const hint = "\n" +
-    "      1  -  2  -  3     \n" +
-    "    /     /   \\    \\  \n" +
-    "   4     5  -  6    7   \n" +
-    "    \\   / \\   / \\  / \n" +
-    "      8  -  9  -  10     \n" +
-    "       \\         /     \n" +
-    "         11  -  0        ";
-    
-    const val = (document.getElementById("initial_state") as any).value;
-    const preview = document.getElementById("preview") as HTMLDivElement;
+    const updatePreview = () => {
+      const hint =
+        "\n" +
+        "      1  -  2  -  3     \n" +
+        "    /     /   \\    \\  \n" +
+        "   4     5  -  6    7   \n" +
+        "    \\   / \\   / \\  / \n" +
+        "      8  -  9  -  10     \n" +
+        "       \\         /     \n" +
+        "         11  -  0        ";
 
-    if (val.length !== 12) {
-      preview.innerHTML = `Неверная длинна, получено ${val.length} символов, ожидается 12` + hint;
-      return;
-    }
-    if (val.split("").filter((x) => x !== "0" && x !=="1").length > 0) {
-      preview.innerHTML = `Неверные символы, только 0 и 1 допустимые` + hint;
-      return;
-    }
-    if (
-      val.split("").filter((x) => x === "0").length !== 6 ||
-      val.split("").filter((x) => x === "1").length !== 6
-    ) {
-      preview.innerHTML = `Неверное количество символов, должно быть по 6 каждого` + hint;
-      return;
-    }
-    preview.innerHTML = draw(val);
-  };
-  document.getElementById("initial_state")!.onchange = updatePreview;
-  document.getElementById("initial_state")!.onkeyup = updatePreview;
-  updatePreview();
-}, 1);
+      const val = (document.getElementById("initial_state") as any).value;
+      const preview = document.getElementById("preview") as HTMLDivElement;
+
+      if (val.length !== 12) {
+        preview.innerHTML =
+          `Неверная длинна, получено ${val.length} символов, ожидается 12` +
+          hint;
+        return;
+      }
+      if (val.split("").filter((x) => x !== "0" && x !== "1").length > 0) {
+        preview.innerHTML = `Неверные символы, только 0 и 1 допустимые` + hint;
+        return;
+      }
+      if (
+        val.split("").filter((x) => x === "0").length !== 6 ||
+        val.split("").filter((x) => x === "1").length !== 6
+      ) {
+        preview.innerHTML =
+          `Неверное количество символов, должно быть по 6 каждого` + hint;
+        return;
+      }
+      preview.innerHTML = draw(val);
+    };
+    document.getElementById("initial_state")!.onchange = updatePreview;
+    document.getElementById("initial_state")!.onkeyup = updatePreview;
+    updatePreview();
+  }, 1);
+}
