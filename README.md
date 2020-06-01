@@ -54,7 +54,7 @@ npm run webserver
 
 ```
 npm install
-./node_modules/.bin/ts-node main.ts
+npm run main
 ```
 
 ## Результаты
