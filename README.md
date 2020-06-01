@@ -43,8 +43,11 @@
 
 ```sh
 npm install
-./node_modules/.bin/ts-node main.ts
+npm run tsc
+npm run webserver
 ```
+
+После этого можно перейти на `http://loclhost:8080`
 
 ## Результаты
 
