@@ -1,5 +1,7 @@
-# A\*
+# A\* with heap and map
 
+This is a c++ implemenation of A* algorithm. Set of opened nodes can be simple linear `opened_naive.cpp` or optimized advanced with heap and map `opened_smart.cpp` 
+ 
 ## Results
 
 Naive implementation is faster on every sane maze. Something about 200ms (naive) vs 210ms (optimized).
