@@ -1,0 +1,37 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Demo</title>
+
+</head>
+
+<body>
+    <div id="inputs">
+        <div style="font-family: monospace; white-space: pre;">
+Начальное состояние, строка из 12-ти символов 0 или 1 
+(Первый символ - это последняя точка справа внизу, далее по порядку слева направо, сверху вниз)
+        </div>
+        <input id="initial_state" value="101010101010"/>
+        <div style="font-family: monospace; white-space: pre;">
+        <div>Предпросмотр начального состояния:</div>
+        <div>@ = 1, * = 0</div>
+        <div
+         id="preview"></div>
+        </div>
+        <button id="go_button">Решать!</button>
+    </div>
+
+    <div style="font-family: monospace; white-space: pre;" id="logs"></div>
+
+
+    <script src="main.js"></script>
+
+    
+</body>
+
+</html>
